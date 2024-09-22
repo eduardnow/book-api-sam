@@ -488,3 +488,4 @@ modules.xml
 /api/.pnp.*
 /api/.webpack/
 /api/.svelte-kit
+book-api.yaml

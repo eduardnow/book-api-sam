@@ -1,0 +1,30 @@
+version = 0.1
+
+[default.global.parameters]
+stack_name = "books-api"
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.validate.parameters]
+lint = true
+
+[default.package.parameters]
+resolve_s3 = true
+output_template_file = "book-api.yaml"
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+stack_name = "books-api"
+template_file = "book-api.yaml"
+
+[default.sync.parameters]
+watch = true
+
+[default.local_start_api.parameters]
+warm_containers = "EAGER"
+
+[default.local_start_lambda.parameters]
+warm_containers = "EAGER"
