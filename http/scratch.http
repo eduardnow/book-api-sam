@@ -1,0 +1,50 @@
+###
+GET https://3popp772la.execute-api.us-east-1.amazonaws.com/Prod/books
+x-api-key: pYcvzmQLDh4dSPxQyfMbf4ELVxXpI2eV8PsN89Rk
+
+<> 2024-09-22T144653.200.json
+<> 2024-09-22T144450.200.json
+
+###
+POST https://3popp772la.execute-api.us-east-1.amazonaws.com/Prod/books
+x-api-key: pYcvzmQLDh4dSPxQyfMbf4ELVxXpI2eV8PsN89Rk
+content-type: application/json
+
+{
+  "id": "584ac55b-44f8-4f54-a39f-0bcda9f86e10",
+  "title": "The Hobbit",
+  "author": "J.R.R. Tolkien",
+  "isbn": "9780345534835",
+  "pages": 310
+}
+
+<> 2024-09-22T144645.201.json
+
+
+###
+PUT https://3popp772la.execute-api.us-east-1.amazonaws.com/Prod/books/584ac55b-44f8-4f54-a39f-0bcda9f86e10
+x-api-key: pYcvzmQLDh4dSPxQyfMbf4ELVxXpI2eV8PsN89Rk
+content-type: application/json
+
+{
+  "id": "584ac55b-44f8-4f54-a39f-0bcda9f86e10",
+  "title": "The Hobbit",
+  "author": "J.R.R. Tolkien",
+  "isbn": "5780345534835",
+  "pages": 210
+}
+
+<> 2024-09-22T144812.200.json
+<> 2024-09-22T144739.200.json
+
+
+###
+GET https://3popp772la.execute-api.us-east-1.amazonaws.com/Prod/books/584ac55b-44f8-4f54-a39f-0bcda9f86e10
+x-api-key: pYcvzmQLDh4dSPxQyfMbf4ELVxXpI2eV8PsN89Rk
+
+<> 2024-09-22T144703.200.json
+
+
+###
+DELETE https://3popp772la.execute-api.us-east-1.amazonaws.com/Prod/books/584ac55b-44f8-4f54-a39f-0bcda9f86e10
+x-api-key: pYcvzmQLDh4dSPxQyfMbf4ELVxXpI2eV8PsN89Rk

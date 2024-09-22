@@ -1,0 +1,157 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  BooksTableName:
+    Type: String
+    Default: BooksTable
+    Description: "The name of the DynamoDB table for book management"
+  BooksLambdaMemorySize:
+    Type: Number
+    Default: 128
+    Description: "Memory size for the book management Lambda function"
+  BooksStage:
+    Type: String
+    Default: prod
+    Description: "Deployment stage for book management"
+  BooksRegion:
+    Type: String
+    Default: us-east-1
+    Description: "AWS region for book management"
+
+Globals:
+  Function:
+    Timeout: 30
+    Environment:
+      Variables:
+        BOOKS_STAGE: !Ref BooksStage
+        BOOKS_REGION: !Ref BooksRegion
+
+Resources:
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: books-api-artifacts-bucket
+
+  BooksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableName: !Ref BooksTableName
+
+  BooksHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.handler
+      CodeUri: ./api
+      Runtime: nodejs18.x
+      MemorySize: !Ref BooksLambdaMemorySize
+      Role: !GetAtt BooksLambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          BOOKS_TABLE_NAME: !Ref BooksTable
+      Events:
+        CreateBook:
+          Type: Api
+          Properties:
+            Path: /books
+            Method: post
+        ListBooks:
+          Type: Api
+          Properties:
+            Path: /books
+            Method: get
+        GetBook:
+          Type: Api
+          Properties:
+            Path: /books/{id}
+            Method: get
+        UpdateBook:
+          Type: Api
+          Properties:
+            Path: /books/{id}
+            Method: put
+        DeleteBook:
+          Type: Api
+          Properties:
+            Path: /books/{id}
+            Method: delete
+      AutoPublishAlias: BooksManagementLive
+
+  BooksLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+
+  BooksCrudLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: BooksCrudLambdaPolicy
+      Roles:
+        - !Ref BooksLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:PutItem
+              - dynamodb:Scan
+              - dynamodb:GetItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
+            Resource: !GetAtt BooksTable.Arn
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: arn:aws:logs:*:*:*
+
+  BooksAlarmSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: BooksAlarmSNSTopic
+
+  BooksCreateBookErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm for CreateBook Lambda errors in book management"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref BooksHandlerFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - Ref: BooksAlarmSNSTopic
+
+Outputs:
+  BooksTableName:
+    Description: "The name of the books DynamoDB table"
+    Value: !Ref BooksTable
+
+  BooksHandlerFunctionArn:
+    Description: "ARN of the BooksHandler Lambda function"
+    Value: !GetAtt BooksHandlerFunction.Arn
+
+  BooksAlarmSNSTopicArn:
+    Description: "ARN of the SNS Topic for Alarms in book management"
+    Value: !Ref BooksAlarmSNSTopic

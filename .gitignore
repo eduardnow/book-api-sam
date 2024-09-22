@@ -91,7 +91,7 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
+**/node_modules/
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
@@ -101,7 +101,7 @@ web_modules/
 *.tsbuildinfo
 
 # Optional npm cache directory
-.npm
+**/.npm
 
 # Optional eslint cache
 .eslintcache
@@ -422,3 +422,70 @@ modules.xml
 *.ipr
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,node,git,serverless,webstorm,webstorm+all,webstorm+iml
+
+# Ignorar node_modules dentro de la carpeta api
+/api/node_modules/
+
+# Ignorar logs dentro de la carpeta api
+/api/logs
+/api/*.log
+/api/npm-debug.log*
+/api/yarn-debug.log*
+/api/yarn-error.log*
+/api/lerna-debug.log*
+/api/.pnpm-debug.log*
+
+# Ignorar datos de runtime dentro de la carpeta api
+/api/pids
+/api/*.pid
+/api/*.seed
+/api/*.pid.lock
+
+# Ignorar directorios de dependencias dentro de la carpeta api
+/api/jspm_packages/
+/api/web_modules/
+
+/api/.npm
+/api/.eslintcache
+/api/.stylelintcache
+/api/.rpt2_cache/
+/api/.rts2_cache_cjs/
+/api/.rts2_cache_es/
+/api/.rts2_cache_umd/
+/api/.node_repl_history
+/api/*.tgz
+/api/.yarn-integrity
+
+# Ignorar archivos de cobertura dentro de la carpeta api
+/api/coverage
+/api/*.lcov
+/api/.nyc_output
+
+# Ignorar archivos de configuración de herramientas dentro de la carpeta api
+/api/.env
+/api/.env.development.local
+/api/.env.test.local
+/api/.env.production.local
+/api/.env.local
+/api/.cache
+/api/.parcel-cache
+/api/.next
+/api/out
+/api/.nuxt
+/api/dist
+/api/.vuepress/dist
+/api/.temp
+/api/.docusaurus
+/api/.serverless/
+/api/.fusebox/
+/api/.dynamodb/
+/api/.tern-port
+/api/.vscode-test
+/api/.yarn/cache
+/api/.yarn/unplugged
+/api/.yarn/build-state.yml
+/api/.yarn/install-state.gz
+/api/.pnp.*
+/api/.webpack/
+/api/.svelte-kit
+book-api.yaml
