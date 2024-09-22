@@ -12,13 +12,12 @@ lint = true
 
 [default.package.parameters]
 resolve_s3 = true
-output_template_file = "book-api.yaml"
+output_template_file = "template.yaml"
 
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
-stack_name = "books-api"
-template_file = "book-api.yaml"
+template_file = "template.yaml"
 
 [default.sync.parameters]
 watch = true
