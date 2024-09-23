@@ -65,12 +65,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set unique template file name
+        id: set-template-file-name
+        run: echo "TEMPLATE_FILE=template-$(date +%Y%m%d%H%M%S).yaml" >> $GITHUB_ENV
+
       - name: Package SAM application
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-        run: sam package
+          TEMPLATE_FILE: ${{ env.TEMPLATE_FILE }}
+        run: sam package --output-template-file $TEMPLATE_FILE
 
   deploy:
     runs-on: ubuntu-latest
@@ -85,4 +90,5 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-        run: sam deploy --resolve-s3 --no-confirm-changeset
+          TEMPLATE_FILE: ${{ env.TEMPLATE_FILE }}
+        run: sam deploy --resolve-s3 --no-confirm-changeset --template-file $TEMPLATE_FILE

@@ -12,7 +12,6 @@ lint = true
 
 [default.package.parameters]
 resolve_s3 = true
-output_template_file = "template.yaml"
 
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
