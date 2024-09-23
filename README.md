@@ -2,7 +2,7 @@
 
 This project is an API for managing books using AWS SAM (Serverless Application Model).
 
-> ℹ️ **Información:** Este proyecto no pretende cubrir todos los aspectos necesarios para una solución en un ambiente de producción. El propósito es principalmente evaluar y demostrar los fundamentos de AWS SAM.
+> ℹ️ **Note:** This project does not intend to cover all the necessary aspects for a production environment solution. The main purpose is to evaluate and demonstrate the fundamentals of AWS SAM.
 
 
 ## Description
