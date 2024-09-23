@@ -29,7 +29,7 @@ describe('Books Handler', () => {
                 title: 'Clean Code',
                 author: 'Robert C. Martin',
                 pages: 464,
-                isbn: '9780132350884',
+                isbn: '978-3-16-148410-0',
             };
 
             ddbMock.on(PutCommand).resolves({});
@@ -50,7 +50,7 @@ describe('Books Handler', () => {
 
             const result = await createBook(book);
 
-            expect(result).toEqual({ statusCode: 400, body: JSON.stringify({ message: 'Missing required field(s): id, title, author, pages, or isbn' }) });
+            expect(result).toEqual({ statusCode: 400, body: JSON.stringify({ message: 'Missing required field(s): id, title, author, pages, isbn' }) });
         });
 
         test('should return 500 for DynamoDB error', async () => {
@@ -59,7 +59,7 @@ describe('Books Handler', () => {
                 title: 'Clean Code',
                 author: 'Robert C. Martin',
                 pages: 464,
-                isbn: '9780132350884',
+                isbn: '978-3-16-148410-0',
             };
 
             ddbMock.on(PutCommand).rejects(new Error('DynamoDB error'));
@@ -67,15 +67,15 @@ describe('Books Handler', () => {
             const result = await createBook(book);
 
             expect(ddbMock.calls()).toHaveLength(1);
-            expect(result).toEqual({ statusCode: 500, body: JSON.stringify({ message: 'DynamoDB error' }) });
+            expect(result).toEqual({ statusCode: 500, body: JSON.stringify({ message: 'Internal Server Error' }) });
         });
     });
 
     describe('listBooks', () => {
         test('should list books successfully', async () => {
             const books = [
-                { id: 'ba0b748b-7b2f-4b68-b6df-0e6c724a799b', title: 'Introduction to the Theory of Computation', author: 'Michael Sipser', pages: 504, isbn: '9781133187790' },
-                { id: '786f84ca-25a0-4b8d-a99b-d93c0084a357', title: 'Design Patterns: Elements of Reusable Object-Oriented Software', author: 'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides', pages: 395, isbn: '9780201633610' }
+                { id: 'ba0b748b-7b2f-4b68-b6df-0e6c724a799b', title: 'Introduction to the Theory of Computation', author: 'Michael Sipser', pages: 504, isbn: '978-0-19-953556-9' },
+                { id: '786f84ca-25a0-4b8d-a99b-d93c0084a357', title: 'Design Patterns: Elements of Reusable Object-Oriented Software', author: 'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides', pages: 395, isbn: '978-0-307-29136-8' }
             ];
             ddbMock.on(ScanCommand).resolves({ Items: books });
 
@@ -102,7 +102,7 @@ describe('Books Handler', () => {
                 title: 'Clean Code',
                 author: 'Robert C. Martin',
                 pages: 464,
-                isbn: '9780132350884',
+                isbn: '978-0-06-112008-4',
             };
 
             ddbMock.on(GetCommand).resolves({ Item: book });
@@ -138,7 +138,7 @@ describe('Books Handler', () => {
                 title: 'Clean Code Revised',
                 author: 'Robert C. Martin',
                 pages: 500,
-                isbn: '9780132350884',
+                isbn: '978-0-452-28423-4',
             };
 
             ddbMock.on(UpdateCommand).resolves({ Attributes: { ...bookUpdates, id: 'bd26db56-9ff0-4c12-be67-710ce2ad1293' } });
@@ -168,7 +168,7 @@ describe('Books Handler', () => {
                 title: 'Clean Code Revised',
                 author: 'Robert C. Martin',
                 pages: 500,
-                isbn: '9780132350884',
+                isbn: '978-0-14-044913-6',
             };
 
             ddbMock.on(UpdateCommand).rejects(new Error('DynamoDB error'));

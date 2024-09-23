@@ -21,9 +21,19 @@ Globals:
     Environment:
       Variables:
         TABLE_NAME: !Ref BooksTableName
-        MY_AWS_REGION: !Ref AWS::Region
 
 Resources:
+  BasicAuthSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: BasicAuthCredentials
+      Description: "Basic Auth credentials for API access"
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "User"}'
+        GenerateStringKey: "password"
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\\'
+
   ArtifactsBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -55,17 +65,6 @@ Resources:
       Auth:
         ApiKeyRequired: true
 
-  BooksApiStage:
-    Type: AWS::ApiGateway::Stage
-    Properties:
-      RestApiId: !Ref BooksApi
-      StageName: ProdStage
-      MethodSettings:
-        - ThrottlingBurstLimit: 100
-          ThrottlingRateLimit: 50
-          ResourcePath: "/*"
-          HttpMethod: "*"
-
   BooksHandlerFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -74,10 +73,6 @@ Resources:
       Runtime: nodejs18.x
       MemorySize: !Ref BooksLambdaMemorySize
       Role: !GetAtt BooksLambdaExecutionRole.Arn
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref BooksTable
-          MY_AWS_REGION: !Ref AWS::Region
       Events:
         CreateBook:
           Type: Api
@@ -109,7 +104,6 @@ Resources:
             Path: /books/{id}
             Method: delete
             RestApiId: !Ref BooksApi
-      AutoPublishAlias: BooksManagementLive
 
   BooksLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -139,7 +133,11 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:log-group:/aws/lambda/*
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: arn:aws:secretsmanager:*:*:secret:BasicAuthCredentials-*
 
   BooksAlarmSNSTopic:
     Type: AWS::SNS::Topic
@@ -160,18 +158,3 @@ Resources:
       EvaluationPeriods: 3
       Threshold: 5
       ComparisonOperator: GreaterThanOrEqualToThreshold
-      AlarmActions:
-        - Ref: BooksAlarmSNSTopic
-
-Outputs:
-  BooksTableName:
-    Description: "The name of the books DynamoDB table"
-    Value: !Ref BooksTable
-
-  BooksHandlerFunctionArn:
-    Description: "ARN of the BooksHandler Lambda function"
-    Value: !GetAtt BooksHandlerFunction.Arn
-
-  BooksAlarmSNSTopicArn:
-    Description: "ARN of the SNS Topic for Alarms in book management"
-    Value: !Ref BooksAlarmSNSTopic

@@ -51,6 +51,9 @@ jobs:
     needs: build
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Validate SAM template
         run: sam validate
 
@@ -59,11 +62,13 @@ jobs:
     needs: validate
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Package SAM application
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          MY_AWS_REGION: ${{ secrets.MY_AWS_REGION }}
         run: sam package
 
   deploy:
@@ -71,9 +76,11 @@ jobs:
     needs: package
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Deploy SAM application
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          MY_AWS_REGION: ${{ secrets.MY_AWS_REGION }}
         run: sam deploy --resolve-s3 --no-confirm-changeset
