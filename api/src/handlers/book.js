@@ -1,11 +1,10 @@
-require('dotenv').config();
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, PutCommand, ScanCommand, GetCommand, UpdateCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
 const { createResponse } = require('../utils/response');
 const { validateBookData } = require('../utils/validation');
 
 const TABLE_NAME = process.env.TABLE_NAME;
-const REGION = process.env.AWS_REGION;
+const REGION = process.env.AWS_DEFAULT_REGION;
 
 // Configure the DynamoDB client
 const ddbClient = new DynamoDBClient({ region: REGION });

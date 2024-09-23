@@ -14,10 +14,6 @@ Parameters:
     Type: String
     Default: prod
     Description: "Deployment stage for book management"
-  BooksRegion:
-    Type: String
-    Default: us-east-1
-    Description: "AWS region for book management"
 
 Globals:
   Function:
@@ -25,7 +21,6 @@ Globals:
     Environment:
       Variables:
         BOOKS_STAGE: !Ref BooksStage
-        BOOKS_REGION: !Ref BooksRegion
 
 Resources:
   ArtifactsBucket:
@@ -57,7 +52,7 @@ Resources:
       Role: !GetAtt BooksLambdaExecutionRole.Arn
       Environment:
         Variables:
-          BOOKS_TABLE_NAME: !Ref BooksTable
+          TABLE_NAME: !Ref BooksTable
       Events:
         CreateBook:
           Type: Api
