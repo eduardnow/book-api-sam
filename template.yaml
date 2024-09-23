@@ -20,7 +20,8 @@ Globals:
     Timeout: 30
     Environment:
       Variables:
-        BOOKS_STAGE: !Ref BooksStage
+        TABLE_NAME: !Ref BooksTableName
+        AWS_DEFAULT_REGION: !Ref AWS::Region
 
 Resources:
   ArtifactsBucket:
@@ -42,6 +43,29 @@ Resources:
         WriteCapacityUnits: 5
       TableName: !Ref BooksTableName
 
+  BooksApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: BooksApi
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+      Auth:
+        ApiKeyRequired: true
+
+  BooksApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: !Ref BooksApi
+      StageName: Prod
+      MethodSettings:
+        - ThrottlingBurstLimit: 100
+          ThrottlingRateLimit: 50
+          ResourcePath: "/*"
+          HttpMethod: "*"
+
   BooksHandlerFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -53,32 +77,38 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref BooksTable
+          AWS_DEFAULT_REGION: !Ref AWS::Region
       Events:
         CreateBook:
           Type: Api
           Properties:
             Path: /books
             Method: post
+            RestApiId: !Ref BooksApi
         ListBooks:
           Type: Api
           Properties:
             Path: /books
             Method: get
+            RestApiId: !Ref BooksApi
         GetBook:
           Type: Api
           Properties:
             Path: /books/{id}
             Method: get
+            RestApiId: !Ref BooksApi
         UpdateBook:
           Type: Api
           Properties:
             Path: /books/{id}
             Method: put
+            RestApiId: !Ref BooksApi
         DeleteBook:
           Type: Api
           Properties:
             Path: /books/{id}
             Method: delete
+            RestApiId: !Ref BooksApi
       AutoPublishAlias: BooksManagementLive
 
   BooksLambdaExecutionRole:
@@ -91,30 +121,25 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
-
-  BooksCrudLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: BooksCrudLambdaPolicy
-      Roles:
-        - !Ref BooksLambdaExecutionRole
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Action:
-              - dynamodb:PutItem
-              - dynamodb:Scan
-              - dynamodb:GetItem
-              - dynamodb:UpdateItem
-              - dynamodb:DeleteItem
-            Resource: !GetAtt BooksTable.Arn
-          - Effect: Allow
-            Action:
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource: arn:aws:logs:*:*:*
+      Policies:
+        - PolicyName: BooksCrudLambdaPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:Scan
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource: !GetAtt BooksTable.Arn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:log-group:/aws/lambda/*
 
   BooksAlarmSNSTopic:
     Type: AWS::SNS::Topic
@@ -131,9 +156,9 @@ Resources:
         - Name: FunctionName
           Value: !Ref BooksHandlerFunction
       Statistic: Sum
-      Period: 300
-      EvaluationPeriods: 1
-      Threshold: 1
+      Period: 900
+      EvaluationPeriods: 3
+      Threshold: 5
       ComparisonOperator: GreaterThanOrEqualToThreshold
       AlarmActions:
         - Ref: BooksAlarmSNSTopic
