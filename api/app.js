@@ -1,9 +1,24 @@
 const { createBook, listBooks, getBook, updateBook, deleteBook } = require('./src/handlers/book');
+const { authenticate } = require('./src/utils/auth');
 
 exports.handler = async (event) => {
-    const { httpMethod, path, body, pathParameters = {} } = event;
+    const { httpMethod, path, body, pathParameters = {}, headers } = event;
+
+    console.log('Event:', JSON.stringify(event, null, 2)); // Log the event
 
     try {
+        const authHeader = headers.Authorization || headers.authorization;
+        if (!authHeader) {
+            console.log('No Authorization header found');
+            return {
+                statusCode: 401,
+                body: JSON.stringify({ message: 'Unauthorized' })
+            };
+        }
+
+        const token = authHeader.split(' ')[1];
+        await authenticate(token);
+
         switch (true) {
             case httpMethod === 'POST' && path === '/books':
                 return createBook(JSON.parse(body));

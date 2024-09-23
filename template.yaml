@@ -21,7 +21,6 @@ Globals:
     Environment:
       Variables:
         TABLE_NAME: !Ref BooksTableName
-        MY_AWS_REGION: !Ref AWS::Region
 
 Resources:
   ArtifactsBucket:
@@ -54,15 +53,10 @@ Resources:
         AllowOrigin: "'*'"
       Auth:
         ApiKeyRequired: true
-
-  BooksApiStage:
-    Type: AWS::ApiGateway::Stage
-    Properties:
-      RestApiId: !Ref BooksApi
-      StageName: ProdStage
       MethodSettings:
-        - ThrottlingBurstLimit: 100
-          ThrottlingRateLimit: 50
+        - LoggingLevel: INFO
+          DataTraceEnabled: true
+          MetricsEnabled: true
           ResourcePath: "/*"
           HttpMethod: "*"
 
@@ -74,10 +68,6 @@ Resources:
       Runtime: nodejs18.x
       MemorySize: !Ref BooksLambdaMemorySize
       Role: !GetAtt BooksLambdaExecutionRole.Arn
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref BooksTable
-          MY_AWS_REGION: !Ref AWS::Region
       Events:
         CreateBook:
           Type: Api
@@ -109,7 +99,6 @@ Resources:
             Path: /books/{id}
             Method: delete
             RestApiId: !Ref BooksApi
-      AutoPublishAlias: BooksManagementLive
 
   BooksLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -139,7 +128,11 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                Resource: arn:aws:logs:*:*:log-group:/aws/lambda/*
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: arn:aws:secretsmanager:*:*:secret:BasicAuthCredentials-*
 
   BooksAlarmSNSTopic:
     Type: AWS::SNS::Topic

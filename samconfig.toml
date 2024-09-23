@@ -2,6 +2,7 @@ version = 0.1
 
 [default.global.parameters]
 stack_name = "books-api"
+region = "us-east-1"
 
 [default.build.parameters]
 cached = true
