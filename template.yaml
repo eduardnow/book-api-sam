@@ -21,7 +21,7 @@ Globals:
     Environment:
       Variables:
         TABLE_NAME: !Ref BooksTableName
-        AWS_DEFAULT_REGION: !Ref AWS::Region
+        MY_AWS_REGION: !Ref AWS::Region
 
 Resources:
   ArtifactsBucket:
@@ -59,7 +59,7 @@ Resources:
     Type: AWS::ApiGateway::Stage
     Properties:
       RestApiId: !Ref BooksApi
-      StageName: Prod
+      StageName: ProdStage
       MethodSettings:
         - ThrottlingBurstLimit: 100
           ThrottlingRateLimit: 50
@@ -77,7 +77,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref BooksTable
-          AWS_DEFAULT_REGION: !Ref AWS::Region
+          MY_AWS_REGION: !Ref AWS::Region
       Events:
         CreateBook:
           Type: Api

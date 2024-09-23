@@ -4,7 +4,7 @@ const { createResponse } = require('../utils/response');
 const { validateBookData } = require('../utils/validation');
 
 const TABLE_NAME = process.env.TABLE_NAME;
-const REGION = process.env.AWS_DEFAULT_REGION;
+const REGION = process.env.MY_AWS_REGION;
 
 // Configure the DynamoDB client
 const ddbClient = new DynamoDBClient({ region: REGION });
