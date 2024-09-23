@@ -2,6 +2,9 @@
 
 This project is an API for managing books using AWS SAM (Serverless Application Model).
 
+> ℹ️ **Información:** Este proyecto no pretende cubrir todos los aspectos necesarios para una solución en un ambiente de producción. El propósito es principalmente evaluar y demostrar los fundamentos de AWS SAM.
+
+
 ## Description
 
 The API allows performing CRUD (Create, Read, Update, Delete) operations on a DynamoDB table that stores information about books. The API is implemented in Node.js and uses AWS Lambda for function execution.
